@@ -1,16 +1,16 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Pure JS Site</title>
 </head>
 <body>
 
-    <!-- Target element for your JS -->
     <div id="root"></div>
 
-    <(function() {
+    <!-- YOU MUST HAVE THIS OPENING TAG -->
+    <script>
+        
+        //(function() {
     // 1. CREATE STYLES
     const css = `
         :root {
@@ -161,19 +161,17 @@
     btnAbout.addEventListener('click', () => slider.classList.add('view-about'));
     btnBack.addEventListener('click', () => slider.classList.remove('view-about'));
 
-})();>
-    <script>
-        // Example: Creating the entire site structure purely via JS
-        const root = document.getElementById('root');
-        
-        const heading = document.createElement('h1');
-        heading.innerText = "Hello! This website was built with pure JS.";
-        
-        const paragraph = document.createElement('p');
-        paragraph.innerText = "No separate .js file was uploaded to this repository.";
-        
-        root.appendChild(heading);
-        root.appendChild(paragraph);
+})();
+        (function() {
+            const css = `:root { --glass: rgba(255, 255, 255, 0.12); ... }`;
+            const styleSheet = document.createElement("style");
+            styleSheet.innerText = css;
+            document.head.appendChild(styleSheet);
+            
+            // Rest of your logic...
+        })();
+
+    <!-- AND THIS CLOSING TAG -->
     </script>
 
 </body>
