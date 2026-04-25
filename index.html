@@ -5,22 +5,26 @@
 </head>
 <body>
 
-    <div id="root"></div>
+    <!-- 1. Ensure this ID exists! -->
+    <div id="root">Loading...</div>
 
-    <!-- YOU MUST HAVE THIS OPENING TAG -->
     <script>
-        
-        // PASTE ALL YOUR JS CODE HERE
-        (function() {
-            const css = `:root { --glass: rgba(255, 255, 255, 0.12); ... }`;
-            const styleSheet = document.createElement("style");
-            styleSheet.innerText = css;
-            document.head.appendChild(styleSheet);
+        // 2. Wrap your code in a try/catch to see errors on the screen
+        try {
+            const root = document.getElementById('root');
             
-            // Rest of your logic...
-        })();
+            // Example of your code logic
+            const heading = document.createElement('h1');
+            heading.innerText = "It's working!";
+            
+            // Clear "Loading..." and add new content
+            root.innerHTML = ""; 
+            root.appendChild(heading);
 
-    <!-- AND THIS CLOSING TAG -->
+        } catch (err) {
+            // This will show you the error directly on the webpage
+            document.body.innerHTML = "<h1>JS Error:</h1><p>" + err + "</p>";
+        }
     </script>
 
 </body>
