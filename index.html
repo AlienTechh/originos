@@ -9,162 +9,234 @@
 
     <script>
     (function() {
-        // 1. CREATE STYLES
-        const css = `
-            :root {
-                --glass: rgba(255, 255, 255, 0.12);
-                --blur: blur(30px);
-                --anim-speed: 0.65s;
-                --ease: cubic-bezier(0.25, 1, 0.2, 1);
-                --phone-radius: 42px;
-                --screen-radius: 38px;
-            }
+        //(function() {
+    // 1. ADVANCED STYLES - Ditching the phone frame for a "Floating OS" vibe
+    const css = `
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@200;400;600&display=swap');
 
-            body { margin: 0; height: 100vh; background: #050505; display: flex; justify-content: center; align-items: center; font-family: 'Inter', sans-serif; overflow: hidden; }
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --accent: #4facfe;
+            --ease: cubic-bezier(0.2, 1, 0.2, 1);
+        }
 
-            .phone { width: 325px; height: 690px; background: #111; border-radius: var(--phone-radius); padding: 3px; position: relative; box-shadow: 0 0 0 1px #222, 0 40px 100px rgba(0,0,0,0.9); }
-            .screen { width: 100%; height: 100%; background: linear-gradient(180deg, #1e3c72 0%, #2a5298 100%); border-radius: var(--screen-radius); position: relative; overflow: hidden; }
+        body { 
+            margin: 0; 
+            height: 100vh; 
+            background: radial-gradient(circle at top right, #1e3c72, #2a5298, #000); 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            font-family: 'Outfit', sans-serif; 
+            overflow: hidden; 
+            color: white;
+        }
 
-            .punch-hole { position: absolute; top: 14px; left: 50%; transform: translateX(-50%); width: 17px; height: 17px; background: #000; border-radius: 50%; z-index: 10000; pointer-events: none; }
-            .status-bar { position: absolute; top: 0; width: 100%; padding: 14px 26px 0; display: flex; justify-content: space-between; box-sizing: border-box; color: white; font-size: 11px; font-weight: 600; z-index: 10000; transition: color 0.3s; }
-            .status-bar.dark { color: #000; }
+        /* BACKGROUND DECORATION */
+        .bg-glow {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: var(--accent);
+            filter: blur(150px);
+            opacity: 0.15;
+            z-index: 0;
+            animation: move 20s infinite alternate;
+        }
 
-            .home-view { padding: 60px 18px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
-            .app-item { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; }
-            .icon { width: 58px; height: 58px; border-radius: 15px; background: #8e8e93; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
-            .app-label { color: white; font-size: 11px; }
+        @keyframes move {
+            from { transform: translate(-20%, -20%); }
+            to { transform: translate(20%, 20%); }
+        }
 
-            .app-window {
-                position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-                background: #f4f4f7; z-index: 9000; opacity: 0; transform: scale(0);
-                pointer-events: none; transition: transform var(--anim-speed) var(--ease), opacity 0.2s;
-                border-radius: var(--screen-radius); overflow: hidden;
-            }
-            .app-window.active { opacity: 1; transform: scale(1) !important; pointer-events: all; }
+        /* THE MAIN APP DECK */
+        .app-deck {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 40px;
+        }
 
-            .page-container { display: flex; width: 200%; height: 100%; transition: transform 0.4s var(--ease); }
-            .page-container.view-about { transform: translateX(-50%); }
-            .page { width: 50%; height: 100%; padding: 60px 20px; box-sizing: border-box; position: relative; color: #000; }
+        /* FLOATING SETTINGS CARD */
+        .settings-card {
+            width: 400px;
+            height: 550px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(40px);
+            border-radius: 40px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+            padding: 30px;
+            box-sizing: border-box;
+            position: relative;
+            transition: all 0.8s var(--ease);
+            overflow: hidden;
+        }
 
-            .settings-list { list-style: none; padding: 0; margin-top: 10px; }
-            .settings-item { 
-                background: white; padding: 18px; border-radius: 18px; margin-bottom: 10px;
-                display: flex; justify-content: space-between; cursor: pointer; font-size: 14px;
-            }
-            .about-pinned { background: #eef2ff !important; border: 1px solid #dce4ff; }
+        .settings-card.expanded {
+            width: 450px;
+            height: 600px;
+        }
 
-            .about-content { display: flex; flex-direction: column; align-items: center; margin-top: 30px; }
-            .origin-logo { width: 290px; height: auto; margin-bottom: 20px; }
+        /* INTERNAL NAVIGATION */
+        .nav-view {
+            display: flex;
+            width: 200%;
+            height: 100%;
+            transition: transform 0.6s var(--ease);
+        }
 
-            .back-btn { 
-                position: absolute; top: 55px; left: 20px; font-size: 22px; cursor: pointer; 
-                width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-                background: rgba(0,0,0,0.05); z-index: 10;
-            }
+        .view-about { transform: translateX(-50%); }
 
-            .home-indicator { position: absolute; bottom: 6px; left: 0; width: 100%; height: 20px; display: flex; justify-content: center; align-items: center; cursor: pointer; z-index: 10001; }
-            .line { width: 90px; height: 4px; background: rgba(255,255,255,0.4); border-radius: 10px; transition: background 0.3s; }
-            .dark-line { background: rgba(0,0,0,0.15) !important; }
+        .pane {
+            width: 50%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
 
-            .dock { position: absolute; bottom: 30px; left: 14px; right: 14px; height: 78px; background: var(--glass); backdrop-filter: var(--blur); border-radius: 28px; display: flex; justify-content: space-evenly; align-items: center; border: 1px solid rgba(255,255,255,0.1); }
-        `;
+        /* LIST DESIGN */
+        .menu-item {
+            background: rgba(255,255,255,0.03);
+            padding: 20px;
+            border-radius: 20px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: 0.3s;
+            border: 1px solid transparent;
+        }
 
-        const styleSheet = document.createElement("style");
-        styleSheet.innerText = css;
-        document.head.appendChild(styleSheet);
+        .menu-item:hover {
+            background: rgba(255,255,255,0.08);
+            border-color: var(--glass-border);
+            transform: translateX(5px);
+        }
 
-        // 2. CREATE HTML STRUCTURE
-        const bodyMarkup = `
-            <div class="phone">
-                <div class="screen">
-                    <div class="punch-hole"></div>
-                    <div class="status-bar" id="statusBar">
-                        <span>09:41</span>
-                        <span>5G 🔋</span>
-                    </div>
+        /* ABOUT PANE */
+        .about-pane {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
 
-                    <div class="home-view">
-                        <div class="app-item" id="settingsIcon">
-                            <div class="icon" style="background: radial-gradient(#555, #222); display:flex; align-items:center; justify-content:center; color:white; font-size:24px;">⚙️</div>
-                            <span class="app-label">Settings</span>
-                        </div>
-                    </div>
+        .origin-logo {
+            width: 320px; /* Max size */
+            height: auto;
+            filter: drop-shadow(0 0 20px rgba(79, 172, 254, 0.3));
+        }
 
-                    <div class="app-window" id="settingsApp">
-                        <div class="page-container" id="pageSlider">
-                            <div class="page">
-                                <h2 style="margin: 10px 0 20px 5px; font-weight: 600;">Settings</h2>
-                                <div class="settings-list">
-                                    <div class="settings-item about-pinned" id="btnAbout">
-                                        <strong>About Phone</strong> <span>›</span>
-                                    </div>
-                                    <div class="settings-item"><span>Wi-Fi</span> <span>›</span></div>
-                                    <div class="settings-item"><span>Bluetooth</span> <span>›</span></div>
-                                    <div class="settings-item"><span>Battery</span> <span>›</span></div>
-                                </div>
+        .back-btn {
+            align-self: flex-start;
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        /* ICON BUTTON */
+        .open-btn {
+            padding: 20px 40px;
+            background: white;
+            color: black;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 10px 30px rgba(255,255,255,0.2);
+            transition: 0.3s;
+        }
+
+        .open-btn:hover { transform: scale(1.05); }
+
+        .hidden { display: none !important; }
+    `;
+
+    const styleSheet = document.createElement("style");
+    styleSheet.innerText = css;
+    document.head.appendChild(styleSheet);
+
+    // 2. DOM STRUCTURE
+    const markup = `
+        <div class="bg-glow"></div>
+        
+        <div class="app-deck">
+            <button class="open-btn" id="launch">Open System Settings</button>
+
+            <div class="settings-card hidden" id="card">
+                <div class="nav-view" id="nav">
+                    
+                    <div class="pane">
+                        <h1 style="font-weight:200; margin-bottom:40px;">Settings</h1>
+                        <div class="menu-item" id="go-about">
+                            <div>
+                                <span style="display:block; font-size:16px; font-weight:600;">About System</span>
+                                <span style="font-size:12px; opacity:0.5;">OriginOS 5.0 Global</span>
                             </div>
-                            <div class="page">
-                                <div class="back-btn" id="btnBack">‹</div>
-                                <div class="about-content">
-                                    <img src="https://github.com/quandz24-ui/OriginWEB/blob/main/originData/OriginOS5Logo.webp?raw=true" class="origin-logo" alt="OriginOS 5">
-                                    <h2 style="margin:0; font-weight: 700;">OriginOS 5</h2>
-                                    <p style="color:#666; font-size:13px; margin-top:5px;">X200 Pro | Android 15</p>
-                                </div>
-                            </div>
+                            <span>→</span>
                         </div>
+                        <div class="menu-item"><span>Connectivity</span> <span>→</span></div>
+                        <div class="menu-item"><span>Personalization</span> <span>→</span></div>
+                        <div class="menu-item"><span>Privacy & Security</span> <span>→</span></div>
                     </div>
 
-                    <div class="home-indicator" id="homeIndicator">
-                        <div class="line" id="homeLine"></div>
+                    <div class="pane about-pane">
+                        <div class="back-btn" id="back">← Back</div>
+                        <img src="https://github.com/quandz24-ui/OriginWEB/blob/main/originData/OriginOS5Logo.webp?raw=true" class="origin-logo" alt="Origin Logo">
+                        <h2 style="font-weight:600; margin-top:0;">OriginOS 5</h2>
+                        <p style="opacity:0.6; font-size:14px; letter-spacing:1px;">X200 PRO | ANDROID 15</p>
                     </div>
 
-                    <div class="dock">
-                        <div class="icon" style="width:48px; height:48px; background: #4cd964;"></div>
-                        <div class="icon" style="width:48px; height:48px; background: #007aff;"></div>
-                        <div class="icon" style="width:48px; height:48px; background: #ff9500;"></div>
-                    </div>
                 </div>
             </div>
-        `;
+        </div>
+    `;
 
-        document.body.innerHTML = bodyMarkup;
+    document.body.innerHTML = markup;
 
-        // 3. LOGIC
-        const app = document.getElementById('settingsApp');
-        const statusBar = document.getElementById('statusBar');
-        const homeLine = document.getElementById('homeLine');
-        const slider = document.getElementById('pageSlider');
-        const settingsIcon = document.getElementById('settingsIcon');
-        const btnAbout = document.getElementById('btnAbout');
-        const btnBack = document.getElementById('btnBack');
-        const homeIndicator = document.getElementById('homeIndicator');
+    // 3. INTERACTION LOGIC
+    const launch = document.getElementById('launch');
+    const card = document.getElementById('card');
+    const nav = document.getElementById('nav');
+    const goAbout = document.getElementById('go-about');
+    const back = document.getElementById('back');
 
-        settingsIcon.addEventListener('click', function() {
-            const rect = settingsIcon.getBoundingClientRect();
-            const screenRect = document.querySelector('.screen').getBoundingClientRect();
-            app.style.transformOrigin = `${(rect.left + rect.width/2) - screenRect.left}px ${(rect.top + rect.height/2) - screenRect.top}px`;
-            
-            app.classList.add('active');
-            statusBar.classList.add('dark');
-            homeLine.classList.add('dark-line');
-        });
+    launch.addEventListener('click', () => {
+        launch.classList.add('hidden');
+        card.classList.remove('hidden');
+        // Small trigger for entrance animation
+        card.style.opacity = "0";
+        card.style.transform = "translateY(50px) scale(0.9)";
+        setTimeout(() => {
+            card.style.transition = "all 0.8s var(--ease)";
+            card.style.opacity = "1";
+            card.style.transform = "translateY(0) scale(1)";
+        }, 10);
+    });
 
-        btnAbout.addEventListener('click', function() {
-            slider.classList.add('view-about');
-        });
+    goAbout.addEventListener('click', () => {
+        nav.classList.add('view-about');
+        card.classList.add('expanded');
+    });
 
-        btnBack.addEventListener('click', function() {
-            slider.classList.remove('view-about');
-        });
+    back.addEventListener('click', () => {
+        nav.classList.remove('view-about');
+        card.classList.remove('expanded');
+    });
 
-        homeIndicator.addEventListener('click', function() {
-            app.classList.remove('active');
-            statusBar.classList.remove('dark');
-            homeLine.classList.remove('dark-line');
-            setTimeout(() => {
-                slider.classList.remove('view-about');
-            }, 300);
-        });
+})();
+//
+        
+
     })();
     </script>
 </body>
