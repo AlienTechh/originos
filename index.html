@@ -10,12 +10,11 @@
             --blur: blur(30px);
             --anim-speed: 0.65s;
             --ease: cubic-bezier(0.25, 1, 0.2, 1);
-            --phone-radius: 44px; /* Slightly adjusted for smaller scale */
+            --phone-radius: 44px; 
             --screen-radius: 38px;
             --bezel: 5px; 
         }
 
-        /* REMOVE BLUE HIGHLIGHTS & SELECTION */
         * {
             -webkit-tap-highlight-color: transparent;
             -webkit-touch-callout: none;
@@ -25,29 +24,14 @@
 
         body { margin: 0; height: 100vh; background: #0a0a0c; display: flex; justify-content: center; align-items: center; font-family: 'Inter', sans-serif; overflow: hidden; }
 
-        /* SCALED DOWN PHONE FRAME */
         .phone { 
-            width: 280px;  /* Reduced from 330px */
-            height: 600px; /* Reduced from 700px */
+            width: 280px;  
+            height: 600px; 
             background: linear-gradient(145deg, #2c2c2e, #111111);
             border-radius: var(--phone-radius); 
             padding: var(--bezel); 
             position: relative; 
-            box-shadow: 
-                0 0 0 2px #3a3a3c,
-                0 0 0 4px #1c1c1e,
-                0 30px 60px rgba(0,0,0,0.8),
-                inset 0 0 15px rgba(255,255,255,0.05);
-        }
-
-        .phone::after {
-            content: "";
-            position: absolute;
-            top: var(--bezel); left: var(--bezel); right: var(--bezel); bottom: var(--bezel);
-            border-radius: var(--screen-radius);
-            background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 40%, transparent 100%);
-            pointer-events: none;
-            z-index: 10002;
+            box-shadow: 0 0 0 2px #3a3a3c, 0 0 0 4px #1c1c1e, 0 30px 60px rgba(0,0,0,0.8), inset 0 0 15px rgba(255,255,255,0.05);
         }
 
         .screen { 
@@ -59,19 +43,51 @@
             overflow: hidden; 
         }
 
-        /* TOP ELEMENTS */
-        .punch-hole { position: absolute; top: 14px; left: 50%; transform: translateX(-50%); width: 12px; height: 12px; background: #000; border-radius: 50%; z-index: 10000; pointer-events: none; box-shadow: inset 0 0 4px rgba(255,255,255,0.2); }
+        /* HYPEROS CONTROL CENTER - NO EMOJIS */
+        #controlCenter {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(10, 10, 10, 0.4);
+            backdrop-filter: blur(45px) saturate(1.8);
+            -webkit-backdrop-filter: blur(45px) saturate(1.8);
+            z-index: 20000;
+            transform: translateY(-100%);
+            transition: transform 0.5s var(--ease);
+            padding: 55px 16px 20px;
+            color: white;
+            box-sizing: border-box;
+        }
+        #controlCenter.active { transform: translateY(0); }
+
+        .cc-top-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+        .cc-big-tile { height: 90px; background: rgba(255,255,255,0.1); border-radius: 24px; padding: 15px; display: flex; flex-direction: column; justify-content: space-between; }
+        .cc-big-tile.active { background: #007aff; }
+
+        .cc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 15px; }
+        .cc-icon-btn { display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 9px; }
+        .cc-circle { width: 46px; height: 46px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.05); }
+        
+        /* Vector Graphics for Icons */
+        .svg-icon { width: 20px; height: 20px; fill: white; opacity: 0.9; }
+
+        .cc-bottom-layout { display: grid; grid-template-columns: 46px 46px 1fr; gap: 10px; height: 140px; }
+        .cc-v-slider { background: rgba(255,255,255,0.15); border-radius: 22px; position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding-bottom: 12px; }
+        .cc-v-fill { position: absolute; bottom: 0; width: 100%; background: white; opacity: 0.95; }
+        .cc-media-tile { background: rgba(255,255,255,0.1); border-radius: 24px; padding: 15px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+
+        /* MAIN CONTENT BLUR */
+        .main-content { width: 100%; height: 100%; transition: filter 0.4s var(--ease); }
+        .screen.blurred .main-content { filter: blur(25px); }
+
+        .punch-hole { position: absolute; top: 14px; left: 50%; transform: translateX(-50%); width: 12px; height: 12px; background: #000; border-radius: 50%; z-index: 10000; pointer-events: none; }
         .status-bar { position: absolute; top: 0; width: 100%; padding: 14px 22px 0; display: flex; justify-content: space-between; box-sizing: border-box; color: white; font-size: 10px; font-weight: 600; z-index: 10000; transition: color 0.3s; }
         .status-bar.dark { color: #000; }
 
-        /* HOME VIEW */
         .home-view { padding: 60px 18px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }
         .app-item { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; }
         .icon { width: 48px; height: 48px; border-radius: 13px; background: #8e8e93; box-shadow: 0 6px 12px rgba(0,0,0,0.3); transition: transform 0.2s; }
-        .app-item:active .icon { transform: scale(0.9); }
         .app-label { color: rgba(255,255,255,0.9); font-size: 10px; font-weight: 500; }
 
-        /* APP WINDOW */
         .app-window {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: #f4f4f9; z-index: 9000; opacity: 0; transform: scale(0.4);
@@ -80,90 +96,92 @@
         }
         .app-window.active { opacity: 1; transform: scale(1) !important; pointer-events: all; }
 
-        /* NAV PAGES */
         .page-container { display: flex; width: 200%; height: 100%; transition: transform 0.5s var(--ease); }
         .page-container.view-about { transform: translateX(-50%); }
         .page { width: 50%; height: 100%; padding: 60px 20px; box-sizing: border-box; position: relative; }
 
-        /* SETTINGS LIST */
-        .settings-list { list-style: none; padding: 0; margin-top: 10px; }
-        .settings-item { 
-            background: white; padding: 15px; border-radius: 18px; margin-bottom: 10px;
-            display: flex; justify-content: space-between; cursor: pointer; font-size: 13px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
-        }
-        .about-pinned { background: #f4f4f4 !important; border: 1px solid #eee; } /* Removed Blue Highlight */
-
-        /* ABOUT PHONE PAGE */
-        .about-content { display: flex; flex-direction: column; align-items: center; margin-top: 15px; }
-        .origin-logo { width: 220px; height: auto; margin-bottom: 20px; pointer-events: none; }
-
-        .back-btn { 
-            position: absolute; top: 50px; left: 15px; font-size: 20px; cursor: pointer; 
-            width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            background: rgba(0,0,0,0.04); z-index: 10;
+        .origin-banner {
+            width: 100%; height: 120px;
+            background: url('https://github.com/quandz24-ui/OriginWEB/blob/main/originData/OriginOS5Logo.webp?raw=true') center center / cover no-repeat;
+            border-radius: 20px; margin-bottom: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.15);
         }
 
-        /* HOME LINE */
         .home-indicator { position: absolute; bottom: 8px; left: 0; width: 100%; height: 20px; display: flex; justify-content: center; align-items: center; cursor: pointer; z-index: 10001; }
         .line { width: 70px; height: 4px; background: rgba(255,255,255,0.3); border-radius: 10px; transition: 0.3s; }
         .dark-line { background: rgba(0,0,0,0.12) !important; }
 
-        /* DOCK */
         .dock { position: absolute; bottom: 30px; left: 15px; right: 15px; height: 70px; background: rgba(255,255,255,0.1); backdrop-filter: blur(25px); border-radius: 26px; display: flex; justify-content: space-evenly; align-items: center; border: 1px solid rgba(255,255,255,0.1); }
+        
+        .settings-item { background: white; padding: 15px; border-radius: 18px; margin-bottom: 10px; display: flex; justify-content: space-between; font-size: 13px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); cursor: pointer; }
     </style>
 </head>
 <body oncontextmenu="return false;">
 
     <div class="phone">
-        <div class="screen">
-            <div class="punch-hole"></div>
-            <div class="status-bar" id="statusBar">
-                <span>09:41</span>
-                <span>5G 🔋</span>
+        <div class="screen" id="screen">
+            <div id="controlCenter">
+                <div class="cc-top-row">
+                    <div class="cc-big-tile active">
+                        <svg class="svg-icon" viewBox="0 0 24 24"><path d="M12.01 21.49L23.64 7c-.45-.34-4.93-4-11.64-4C5.28 3 .81 6.66.36 7l11.63 14.49.01.01.01-.01z"/></svg>
+                        <span style="font-size:11px; font-weight:600;">Mobile Data</span>
+                    </div>
+                    <div class="cc-big-tile">
+                        <svg class="svg-icon" viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+                        <span style="font-size:11px; font-weight:600;">Wi-Fi</span>
+                    </div>
+                </div>
+                <div class="cc-grid">
+                    <div class="cc-icon-btn"><div class="cc-circle"><div style="width:18px; height:18px; border:2px solid white; border-radius:50%"></div></div><span>Bluetooth</span></div>
+                    <div class="cc-icon-btn"><div class="cc-circle"><div style="width:8px; height:18px; background:white; border-radius:2px"></div></div><span>Torch</span></div>
+                    <div class="cc-icon-btn"><div class="cc-circle"><div style="width:16px; height:16px; border:2px solid white; border-radius:50%; border-top-color:transparent"></div></div><span>Rotate</span></div>
+                    <div class="cc-icon-btn"><div class="cc-circle"><div style="width:4px; height:18px; background:white;"></div></div><span>Mute</span></div>
+                </div>
+                <div class="cc-bottom-layout">
+                    <div class="cc-v-slider"><div class="cc-v-fill" style="height:70%"></div><div style="width:12px; height:12px; border:2px solid black; border-radius:50%; z-index:2; margin-bottom:5px;"></div></div>
+                    <div class="cc-v-slider"><div class="cc-v-fill" style="height:45%"></div><div style="width:10px; height:10px; background:black; z-index:2; margin-bottom:5px;"></div></div>
+                    <div class="cc-media-tile">
+                        <span style="font-size:9px; opacity:0.6; margin-bottom:15px;">Media Player</span>
+                        <div style="width:30px; height:30px; border:2px solid white; border-radius:50%"></div>
+                    </div>
+                </div>
             </div>
 
-            <div class="home-view">
-                <div class="app-item" onclick="openSettings(this)">
-                    <div class="icon" style="background: radial-gradient(circle at top left, #555, #111); display:flex; align-items:center; justify-content:center; color:white; font-size:22px;">⚙️</div>
-                    <span class="app-label">Settings</span>
+            <div class="main-content" id="mainContent">
+                <div class="punch-hole"></div>
+                <div class="status-bar" id="statusBar">
+                    <span>09:41</span>
+                    <span>5G</span>
+                </div>
+                <div class="home-view">
+                    <div class="app-item" onclick="openSettings(this)">
+                        <div class="icon" style="background: #333; display:flex; align-items:center; justify-content:center; color:white; font-size:20px;">S</div>
+                        <span class="app-label">Settings</span>
+                    </div>
+                </div>
+                <div class="dock">
+                    <div class="icon" style="width:44px; height:44px; background: #58e278;"></div>
+                    <div class="icon" style="width:44px; height:44px; background: #5ac8fa;"></div>
+                    <div class="icon" style="width:44px; height:44px; background: #ffcc00;"></div>
                 </div>
             </div>
 
             <div class="app-window" id="settingsApp">
                 <div class="page-container" id="pageSlider">
                     <div class="page">
-                        <h2 style="margin: 0 0 20px 10px; font-weight: 700; font-size: 20px;">Settings</h2>
-                        <div class="settings-list">
-                            <div class="settings-item about-pinned" onclick="goToAbout()">
-                                <strong>About Phone</strong> <span>›</span>
-                            </div>
-                            <div class="settings-item"><span>Network & Internet</span> <span>›</span></div>
-                            <div class="settings-item"><span>Display Brightness</span> <span>›</span></div>
-                            <div class="settings-item"><span>System Updates</span> <span>›</span></div>
-                        </div>
+                        <h2 style="margin: 0 0 15px 5px; font-size: 22px;">Settings</h2>
+                        <div class="settings-item" onclick="goToAbout()"><strong>About Phone</strong> <span>></span></div>
+                        <div class="settings-item">Display <span>></span></div>
                     </div>
-
                     <div class="page">
-                        <div class="back-btn" onclick="goBack()">‹</div>
-                        <div class="about-content">
-                            <img src="https://github.com/quandz24-ui/OriginWEB/blob/main/originData/OriginOS5Logo.webp?raw=true" class="origin-logo" alt="OriginOS 5" draggable="false">
-                            <h2 style="margin:0; font-weight: 800; font-size: 20px;">OriginOS 5</h2>
-                            <p style="color:#777; font-size:12px; margin-top:6px;">Vivo X200 Pro</p>
-                        </div>
+                        <div style="cursor:pointer; padding: 10px 0;" onclick="goBack()">< Back</div>
+                        <div class="origin-banner"></div>
+                        <h2 style="text-align:center; margin:0;">OriginOS 5</h2>
+                        <p style="text-align:center; opacity:0.5; font-size:12px;">Vivo X200 Pro</p>
                     </div>
                 </div>
             </div>
 
-            <div class="home-indicator" onclick="closeSettings()">
-                <div class="line" id="homeLine"></div>
-            </div>
-
-            <div class="dock">
-                <div class="icon" style="width:44px; height:44px; background: linear-gradient(#58e278, #28a745);"></div>
-                <div class="icon" style="width:44px; height:44px; background: linear-gradient(#5ac8fa, #007aff);"></div>
-                <div class="icon" style="width:44px; height:44px; background: linear-gradient(#ffcc00, #ff9500);"></div>
-            </div>
+            <div class="home-indicator" onclick="closeSettings()"><div class="line" id="homeLine"></div></div>
         </div>
     </div>
 
@@ -172,10 +190,12 @@
         const statusBar = document.getElementById('statusBar');
         const homeLine = document.getElementById('homeLine');
         const slider = document.getElementById('pageSlider');
+        const screen = document.getElementById('screen');
+        const cc = document.getElementById('controlCenter');
 
         function openSettings(element) {
             const rect = element.getBoundingClientRect();
-            const screenRect = document.querySelector('.screen').getBoundingClientRect();
+            const screenRect = screen.getBoundingClientRect();
             app.style.transformOrigin = `${(rect.left + rect.width/2) - screenRect.left}px ${(rect.top + rect.height/2) - screenRect.top}px`;
             app.classList.add('active');
             statusBar.classList.add('dark');
@@ -192,14 +212,24 @@
         function goToAbout() { slider.classList.add('view-about'); }
         function goBack() { slider.classList.remove('view-about'); }
 
-        // DISABLE CONTEXT MENU AND DEV TOOLS
-        document.addEventListener('contextmenu', event => event.preventDefault());
-        document.onkeydown = function(e) {
-            if(event.keyCode == 123) { return false; } // F12
-            if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) { return false; }
-            if(e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)) { return false; }
-            if(e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) { return false; }
-            if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) { return false; }
+        let startY = 0;
+        screen.addEventListener('touchstart', e => { startY = e.touches[0].pageY; }, {passive: true});
+        screen.addEventListener('touchmove', e => {
+            let moveY = e.touches[0].pageY;
+            if (startY < 100 && moveY - startY > 50) { cc.classList.add('active'); screen.classList.add('blurred'); }
+            if (cc.classList.contains('active') && startY - moveY > 50) { cc.classList.remove('active'); screen.classList.remove('blurred'); }
+        }, {passive: true});
+
+        screen.addEventListener('mousedown', e => { startY = e.pageY; });
+        screen.addEventListener('mousemove', e => {
+            if (e.buttons !== 1) return;
+            if (startY < 100 && e.pageY - startY > 50) { cc.classList.add('active'); screen.classList.add('blurred'); }
+            if (cc.classList.contains('active') && startY - e.pageY > 50) { cc.classList.remove('active'); screen.classList.remove('blurred'); }
+        });
+
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        document.onkeydown = e => {
+            if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 67 || e.keyCode == 74)) || (e.ctrlKey && e.keyCode == 85)) return false;
         };
     </script>
 </body>
