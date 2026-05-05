@@ -8,11 +8,12 @@
         :root {
             --glass: rgba(255, 255, 255, 0.12);
             --blur: blur(30px);
-            --anim-speed: 0.65s;
-            --ease: cubic-bezier(0.25, 1, 0.2, 1);
+            --anim-speed: 0.5s; 
+            --ease: cubic-bezier(0.4, 0, 0.2, 1); 
             --phone-radius: 44px; 
             --screen-radius: 38px;
             --bezel: 5px; 
+            --wallpaper: url('https://w0.peakpx.com/wallpaper/216/8/HD-wallpaper-miui-12-redmi-xiaomi-thumbnail.jpg');
         }
 
         * {
@@ -20,6 +21,7 @@
             -webkit-touch-callout: none;
             user-select: none;
             outline: none;
+            box-sizing: border-box;
         }
 
         body { margin: 0; height: 100vh; background: #0a0a0c; display: flex; justify-content: center; align-items: center; font-family: 'Inter', sans-serif; overflow: hidden; }
@@ -34,131 +36,157 @@
             box-shadow: 0 0 0 2px #3a3a3c, 0 0 0 4px #1c1c1e, 0 30px 60px rgba(0,0,0,0.8), inset 0 0 15px rgba(255,255,255,0.05);
         }
 
+        .power-btn {
+            position: absolute;
+            right: -3px;
+            top: 140px;
+            width: 4px;
+            height: 45px;
+            background: #3a3a3c;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+            z-index: 50000;
+        }
+
         .screen { 
             width: 100%; 
             height: 100%; 
-            background: radial-gradient(circle at center, #2c5364, #203a43, #0f2027); 
+            background: #000;
             border-radius: var(--screen-radius); 
             position: relative; 
             overflow: hidden; 
         }
 
-        /* HYPEROS CONTROL CENTER - NO EMOJIS */
-        #controlCenter {
+        /* HOMESCREEN WALLPAPER LAYER */
+        .wallpaper-layer {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(10, 10, 10, 0.4);
-            backdrop-filter: blur(45px) saturate(1.8);
-            -webkit-backdrop-filter: blur(45px) saturate(1.8);
-            z-index: 20000;
-            transform: translateY(-100%);
-            transition: transform 0.5s var(--ease);
-            padding: 55px 16px 20px;
-            color: white;
-            box-sizing: border-box;
+            background: var(--wallpaper) center/cover;
+            transition: transform 0.6s var(--ease), filter 0.6s var(--ease);
+            z-index: 1;
         }
-        #controlCenter.active { transform: translateY(0); }
-
-        .cc-top-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
-        .cc-big-tile { height: 90px; background: rgba(255,255,255,0.1); border-radius: 24px; padding: 15px; display: flex; flex-direction: column; justify-content: space-between; }
-        .cc-big-tile.active { background: #007aff; }
-
-        .cc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 15px; }
-        .cc-icon-btn { display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 9px; }
-        .cc-circle { width: 46px; height: 46px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.05); }
         
-        /* Vector Graphics for Icons */
-        .svg-icon { width: 20px; height: 20px; fill: white; opacity: 0.9; }
+        /* DARK & ZOOM ONLY APPLIED TO HOMESCREEN LAYER */
+        .screen.app-active .wallpaper-layer {
+            transform: scale(1.15);
+            filter: brightness(0.3); 
+        }
 
-        .cc-bottom-layout { display: grid; grid-template-columns: 46px 46px 1fr; gap: 10px; height: 140px; }
-        .cc-v-slider { background: rgba(255,255,255,0.15); border-radius: 22px; position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding-bottom: 12px; }
-        .cc-v-fill { position: absolute; bottom: 0; width: 100%; background: white; opacity: 0.95; }
-        .cc-media-tile { background: rgba(255,255,255,0.1); border-radius: 24px; padding: 15px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .screen.app-active .main-content { filter: brightness(0.4); }
 
-        /* MAIN CONTENT BLUR */
-        .main-content { width: 100%; height: 100%; transition: filter 0.4s var(--ease); }
-        .screen.blurred .main-content { filter: blur(25px); }
+        #displayOff {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #000;
+            z-index: 45000;
+            transition: opacity 0.25s;
+            pointer-events: all;
+        }
+        #displayOff.hidden { opacity: 0; pointer-events: none; }
 
-        .punch-hole { position: absolute; top: 14px; left: 50%; transform: translateX(-50%); width: 12px; height: 12px; background: #000; border-radius: 50%; z-index: 10000; pointer-events: none; }
-        .status-bar { position: absolute; top: 0; width: 100%; padding: 14px 22px 0; display: flex; justify-content: space-between; box-sizing: border-box; color: white; font-size: 10px; font-weight: 600; z-index: 10000; transition: color 0.3s; }
+        /* LOCKSCREEN - STATIC & NO NAV */
+        #lockScreen {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--wallpaper) center/cover; /* Own static background */
+            z-index: 35000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 70px;
+            color: white;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            transition: transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.5s;
+            touch-action: none;
+        }
+        #lockScreen.unlocked { transform: scale(1.5); opacity: 0; pointer-events: none; }
+
+        .main-content { 
+            position: relative;
+            z-index: 10;
+            width: 100%; height: 100%; 
+            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.5s, filter 0.6s var(--ease); 
+            transform: scale(0.8); opacity: 0; 
+        }
+        .main-content.active-view { transform: scale(1); opacity: 1; }
+
+        .punch-hole { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); width: 14px; height: 14px; background: #000; border-radius: 50%; z-index: 40000; }
+        
+        .status-bar { position: absolute; top: 0; width: 100%; padding: 14px 22px 0; display: flex; justify-content: space-between; color: white; font-size: 10px; font-weight: 600; z-index: 30000; transition: color 0.3s; }
         .status-bar.dark { color: #000; }
 
         .home-view { padding: 60px 18px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }
         .app-item { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; }
-        .icon { width: 48px; height: 48px; border-radius: 13px; background: #8e8e93; box-shadow: 0 6px 12px rgba(0,0,0,0.3); transition: transform 0.2s; }
-        .app-label { color: rgba(255,255,255,0.9); font-size: 10px; font-weight: 500; }
+        
+        .icon { 
+            width: 48px; height: 48px; border-radius: 13px; 
+            background-size: cover; background-position: center; 
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3); 
+            transition: transform 0.6s var(--ease);
+        }
+        .app-item.rotating .icon { transform: rotate(360deg); }
 
         .app-window {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: #f4f4f9; z-index: 9000; opacity: 0; transform: scale(0.4);
-            pointer-events: none; transition: transform var(--anim-speed) var(--ease), opacity 0.3s;
-            border-radius: var(--screen-radius); overflow: hidden;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #f4f4f9; 
+            z-index: 20000; opacity: 0; transform: scale(0.1); pointer-events: none; 
+            border-radius: var(--screen-radius);
+            overflow: hidden;
+            transition: transform var(--anim-speed) var(--ease), opacity 0.3s var(--ease), visibility 0s linear 0.5s;
+            visibility: hidden;
         }
-        .app-window.active { opacity: 1; transform: scale(1) !important; pointer-events: all; }
+        .app-window.active { opacity: 1; transform: scale(1); pointer-events: all; visibility: visible; transition: transform var(--anim-speed) var(--ease), opacity 0.2s var(--ease), visibility 0s linear 0s; }
 
-        .page-container { display: flex; width: 200%; height: 100%; transition: transform 0.5s var(--ease); }
-        .page-container.view-about { transform: translateX(-50%); }
-        .page { width: 50%; height: 100%; padding: 60px 20px; box-sizing: border-box; position: relative; }
-
-        .origin-banner {
-            width: 100%; height: 120px;
-            background: url('https://github.com/quandz24-ui/OriginWEB/blob/main/originData/OriginOS5Logo.webp?raw=true') center center / cover no-repeat;
-            border-radius: 20px; margin-bottom: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        /* NAVIGATION BAR LOGIC - ONLY VISIBLE WHEN UNLOCKED */
+        .home-indicator, .nav-buttons-container { 
+            position: absolute; bottom: 8px; left: 0; width: 100%; 
+            display: none; /* Forced hidden on Lockscreen */
+            justify-content: center; align-items: center; z-index: 30000; 
         }
+        .visible-nav { display: flex !important; }
 
-        .home-indicator { position: absolute; bottom: 8px; left: 0; width: 100%; height: 20px; display: flex; justify-content: center; align-items: center; cursor: pointer; z-index: 10001; }
-        .line { width: 70px; height: 4px; background: rgba(255,255,255,0.3); border-radius: 10px; transition: 0.3s; }
-        .dark-line { background: rgba(0,0,0,0.12) !important; }
+        .line { width: 70px; height: 4px; background: rgba(255,255,255,0.4); border-radius: 10px; }
+        .dark-line { background: rgba(0,0,0,0.2) !important; }
 
-        .dock { position: absolute; bottom: 30px; left: 15px; right: 15px; height: 70px; background: rgba(255,255,255,0.1); backdrop-filter: blur(25px); border-radius: 26px; display: flex; justify-content: space-evenly; align-items: center; border: 1px solid rgba(255,255,255,0.1); }
-        
-        .settings-item { background: white; padding: 15px; border-radius: 18px; margin-bottom: 10px; display: flex; justify-content: space-between; font-size: 13px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); cursor: pointer; }
+        .nav-buttons-container { bottom: 0; height: 45px; justify-content: space-around; padding: 0 30px; }
+        .nav-btn { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.7); cursor: pointer; }
+        .nav-btn.circle { border-radius: 50%; width: 18px; height: 18px; }
+        .nav-btn.tri { width: 0; height: 0; border-top: 8px solid transparent; border-bottom: 8px solid transparent; border-right: 12px solid rgba(255,255,255,0.7); }
+        .nav-btn.dark-btn { border-color: rgba(0,0,0,0.5); }
+
+        .dock { position: absolute; bottom: 30px; left: 15px; right: 15px; height: 70px; background: rgba(255,255,255,0.1); backdrop-filter: blur(25px); border-radius: 26px; display: flex; justify-content: space-evenly; align-items: center; border: 1px solid rgba(255,255,255,0.1); transition: 0.3s; }
+        .settings-item { background: white; padding: 15px; border-radius: 18px; margin-bottom: 10px; display: flex; justify-content: space-between; font-size: 13px; cursor: pointer; border: 1px solid #eee; }
+        .check { color: #007aff; font-weight: bold; visibility: hidden; }
+        .check.active { visibility: visible; }
     </style>
 </head>
 <body oncontextmenu="return false;">
 
     <div class="phone">
+        <div class="power-btn" onclick="handlePowerBtn()"></div>
+        <div class="punch-hole"></div>
+
         <div class="screen" id="screen">
-            <div id="controlCenter">
-                <div class="cc-top-row">
-                    <div class="cc-big-tile active">
-                        <svg class="svg-icon" viewBox="0 0 24 24"><path d="M12.01 21.49L23.64 7c-.45-.34-4.93-4-11.64-4C5.28 3 .81 6.66.36 7l11.63 14.49.01.01.01-.01z"/></svg>
-                        <span style="font-size:11px; font-weight:600;">Mobile Data</span>
-                    </div>
-                    <div class="cc-big-tile">
-                        <svg class="svg-icon" viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
-                        <span style="font-size:11px; font-weight:600;">Wi-Fi</span>
-                    </div>
-                </div>
-                <div class="cc-grid">
-                    <div class="cc-icon-btn"><div class="cc-circle"><div style="width:18px; height:18px; border:2px solid white; border-radius:50%"></div></div><span>Bluetooth</span></div>
-                    <div class="cc-icon-btn"><div class="cc-circle"><div style="width:8px; height:18px; background:white; border-radius:2px"></div></div><span>Torch</span></div>
-                    <div class="cc-icon-btn"><div class="cc-circle"><div style="width:16px; height:16px; border:2px solid white; border-radius:50%; border-top-color:transparent"></div></div><span>Rotate</span></div>
-                    <div class="cc-icon-btn"><div class="cc-circle"><div style="width:4px; height:18px; background:white;"></div></div><span>Mute</span></div>
-                </div>
-                <div class="cc-bottom-layout">
-                    <div class="cc-v-slider"><div class="cc-v-fill" style="height:70%"></div><div style="width:12px; height:12px; border:2px solid black; border-radius:50%; z-index:2; margin-bottom:5px;"></div></div>
-                    <div class="cc-v-slider"><div class="cc-v-fill" style="height:45%"></div><div style="width:10px; height:10px; background:black; z-index:2; margin-bottom:5px;"></div></div>
-                    <div class="cc-media-tile">
-                        <span style="font-size:9px; opacity:0.6; margin-bottom:15px;">Media Player</span>
-                        <div style="width:30px; height:30px; border:2px solid white; border-radius:50%"></div>
-                    </div>
-                </div>
+            <div class="wallpaper-layer"></div>
+            <div id="displayOff"></div>
+
+            <div id="lockScreen">
+                <div style="font-size: 54px; font-weight: 200;" id="l-time">09:41</div>
+                <div style="font-size: 14px;" id="l-date">Tuesday, May 5</div>
+                <div style="position: absolute; bottom: 40px; font-size: 11px; opacity: 0.6;">Swipe up to unlock</div>
             </div>
 
             <div class="main-content" id="mainContent">
-                <div class="punch-hole"></div>
                 <div class="status-bar" id="statusBar">
-                    <span>09:41</span>
+                    <span class="clock-val">09:41</span>
                     <span>5G</span>
                 </div>
                 <div class="home-view">
-                    <div class="app-item" onclick="openSettings(this)">
-                        <div class="icon" style="background: #333; display:flex; align-items:center; justify-content:center; color:white; font-size:20px;">S</div>
-                        <span class="app-label">Settings</span>
+                    <div class="app-item" id="settingsIcon" onclick="openSettings(this)">
+                        <div class="icon" style="background-image: url('https://static.wikia.nocookie.net/logopedia/images/3/36/Settings-visionOS.png/revision/latest?cb=20250408165303');"></div>
+                        <span style="color:white; font-size:10px;">Settings</span>
                     </div>
                 </div>
-                <div class="dock">
+                <div class="dock" id="mainDock">
                     <div class="icon" style="width:44px; height:44px; background: #58e278;"></div>
                     <div class="icon" style="width:44px; height:44px; background: #5ac8fa;"></div>
                     <div class="icon" style="width:44px; height:44px; background: #ffcc00;"></div>
@@ -168,69 +196,138 @@
             <div class="app-window" id="settingsApp">
                 <div class="page-container" id="pageSlider">
                     <div class="page">
-                        <h2 style="margin: 0 0 15px 5px; font-size: 22px;">Settings</h2>
-                        <div class="settings-item" onclick="goToAbout()"><strong>About Phone</strong> <span>></span></div>
-                        <div class="settings-item">Display <span>></span></div>
+                        <h2 style="margin: 0 0 15px 5px;">Settings</h2>
+                        <div class="settings-item" onclick="navTo(1)"><strong>About Phone</strong> <span>></span></div>
+                        <div class="settings-item" onclick="navTo(2)"><strong>Display</strong> <span>></span></div>
                     </div>
                     <div class="page">
-                        <div style="cursor:pointer; padding: 10px 0;" onclick="goBack()">< Back</div>
-                        <div class="origin-banner"></div>
-                        <h2 style="text-align:center; margin:0;">OriginOS 5</h2>
-                        <p style="text-align:center; opacity:0.5; font-size:12px;">Vivo X200 Pro</p>
+                        <div style="cursor:pointer; padding: 10px 0;" onclick="navTo(0)">< Back</div>
+                        <div style="width: 100%; height: 100px; background: #eee; border-radius: 15px; margin-bottom: 15px;"></div>
+                        <h2 style="text-align:center; margin:0; font-size: 16px;">Vivo X200 Ultra</h2>
+                    </div>
+                    <div class="page">
+                        <div style="cursor:pointer; padding: 10px 0;" onclick="navTo(0)">< Back</div>
+                        <h2>Display</h2>
+                        <div class="settings-item" onclick="navTo(3)"><strong>Navigation Bar</strong> <span>></span></div>
+                    </div>
+                    <div class="page">
+                        <div style="cursor:pointer; padding: 10px 0;" onclick="navTo(2)">< Back</div>
+                        <h2>Navigation</h2>
+                        <div class="settings-item" onclick="setNav('swipe')">Swipe Bar <span id="chk-swipe" class="check active">✓</span></div>
+                        <div class="settings-item" onclick="setNav('btns')">Buttons <span id="chk-btns" class="check">✓</span></div>
                     </div>
                 </div>
             </div>
 
-            <div class="home-indicator" onclick="closeSettings()"><div class="line" id="homeLine"></div></div>
+            <div class="home-indicator" id="homeTrigger" onclick="handleHomeClick()">
+                <div class="line" id="homeLine"></div>
+            </div>
+            <div class="nav-buttons-container" id="navBtns">
+                <div class="nav-btn tri"></div>
+                <div class="nav-btn circle" onclick="handleHomeClick()"></div>
+                <div class="nav-btn rect"></div>
+            </div>
         </div>
     </div>
 
     <script>
         const app = document.getElementById('settingsApp');
+        const screen = document.getElementById('screen');
         const statusBar = document.getElementById('statusBar');
         const homeLine = document.getElementById('homeLine');
         const slider = document.getElementById('pageSlider');
-        const screen = document.getElementById('screen');
-        const cc = document.getElementById('controlCenter');
+        const mainContent = document.getElementById('mainContent');
+        const displayOff = document.getElementById('displayOff');
+        const lockScreen = document.getElementById('lockScreen');
+        const navBtns = document.getElementById('navBtns');
+        const homeTrigger = document.getElementById('homeTrigger');
+        const dock = document.getElementById('mainDock');
+
+        let isPowerOn = false; 
+        let currentNavMode = 'swipe';
+
+        function handlePowerBtn() {
+            if (isPowerOn) {
+                displayOff.classList.remove('hidden');
+                lockScreen.classList.remove('unlocked');
+                mainContent.classList.remove('active-view');
+                // Force hide nav on sleep
+                homeTrigger.classList.remove('visible-nav');
+                navBtns.classList.remove('visible-nav');
+                isPowerOn = false;
+            } else {
+                displayOff.classList.add('hidden');
+                isPowerOn = true;
+            }
+        }
+
+        let lockStartY = 0;
+        lockScreen.addEventListener('pointerdown', e => { lockStartY = e.clientY; });
+        lockScreen.addEventListener('pointerup', e => {
+            if (lockStartY - e.clientY > 60) {
+                lockScreen.classList.add('unlocked');
+                mainContent.classList.add('active-view');
+                // Reveal Nav only after unlock
+                toggleNavUI();
+            }
+        });
+
+        function toggleNavUI() {
+            if(currentNavMode === 'swipe') {
+                homeTrigger.classList.add('visible-nav');
+                navBtns.classList.remove('visible-nav');
+            } else {
+                navBtns.classList.add('visible-nav');
+                homeTrigger.classList.remove('visible-nav');
+            }
+        }
+
+        function navTo(p) { slider.style.transform = `translateX(-${p * 25}%)`; }
+
+        function setNav(type) {
+            currentNavMode = type;
+            if(type === 'swipe') {
+                dock.style.bottom = '30px';
+                document.getElementById('chk-swipe').classList.add('active');
+                document.getElementById('chk-btns').classList.remove('active');
+            } else {
+                dock.style.bottom = '50px';
+                document.getElementById('chk-swipe').classList.remove('active');
+                document.getElementById('chk-btns').classList.add('active');
+            }
+            toggleNavUI();
+        }
 
         function openSettings(element) {
             const rect = element.getBoundingClientRect();
             const screenRect = screen.getBoundingClientRect();
             app.style.transformOrigin = `${(rect.left + rect.width/2) - screenRect.left}px ${(rect.top + rect.height/2) - screenRect.top}px`;
+            element.classList.add('rotating');
             app.classList.add('active');
+            screen.classList.add('app-active'); 
             statusBar.classList.add('dark');
             homeLine.classList.add('dark-line');
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.add('dark-btn'));
         }
 
-        function closeSettings() {
-            app.classList.remove('active');
-            statusBar.classList.remove('dark');
-            homeLine.classList.remove('dark-line');
-            setTimeout(() => { slider.classList.remove('view-about'); }, 400);
+        function handleHomeClick() {
+            if (app.classList.contains('active')) {
+                app.classList.remove('active');
+                screen.classList.remove('app-active'); 
+                statusBar.classList.remove('dark');
+                homeLine.classList.remove('dark-line');
+                document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('dark-btn'));
+                document.getElementById('settingsIcon').classList.remove('rotating');
+            }
         }
 
-        function goToAbout() { slider.classList.add('view-about'); }
-        function goBack() { slider.classList.remove('view-about'); }
-
-        let startY = 0;
-        screen.addEventListener('touchstart', e => { startY = e.touches[0].pageY; }, {passive: true});
-        screen.addEventListener('touchmove', e => {
-            let moveY = e.touches[0].pageY;
-            if (startY < 100 && moveY - startY > 50) { cc.classList.add('active'); screen.classList.add('blurred'); }
-            if (cc.classList.contains('active') && startY - moveY > 50) { cc.classList.remove('active'); screen.classList.remove('blurred'); }
-        }, {passive: true});
-
-        screen.addEventListener('mousedown', e => { startY = e.pageY; });
-        screen.addEventListener('mousemove', e => {
-            if (e.buttons !== 1) return;
-            if (startY < 100 && e.pageY - startY > 50) { cc.classList.add('active'); screen.classList.add('blurred'); }
-            if (cc.classList.contains('active') && startY - e.pageY > 50) { cc.classList.remove('active'); screen.classList.remove('blurred'); }
-        });
-
-        document.addEventListener('contextmenu', e => e.preventDefault());
-        document.onkeydown = e => {
-            if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 67 || e.keyCode == 74)) || (e.ctrlKey && e.keyCode == 85)) return false;
-        };
+        function updateTime() {
+            const now = new Date();
+            const timeStr = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
+            document.querySelectorAll('.clock-val, #l-time').forEach(el => el.textContent = timeStr);
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
     </script>
 </body>
 </html>
